@@ -120,7 +120,7 @@ func openSelectPresetForm(p *player.Player) {
 func openCreatePresetForm(p *player.Player) {
 	cfg := knockback.GetKnockbackConfig()
 
-	var name, horizontal, vertical, cooldown, limiter, factor string
+	var name, horizontal, vertical, cooldown, limiter string
 	custom := &form.Custom{
 		Title: "Crear preset",
 		Elements: []form.Element{
@@ -129,8 +129,7 @@ func openCreatePresetForm(p *player.Player) {
 			form.Input{Text: "Horizontal force", Placeholder: "0.4", Default: formatFloat(cfg.HorizontalForce), Submit: func(v string) { horizontal = v }},
 			form.Input{Text: "Vertical force", Placeholder: "0.4", Default: formatFloat(cfg.VerticalForce), Submit: func(v string) { vertical = v }},
 			form.Input{Text: "Attack cooldown (ms)", Placeholder: "100", Default: formatInt(cfg.AttackCooldown), Submit: func(v string) { cooldown = v }},
-			form.Input{Text: "Height limiter", Placeholder: "0.4", Default: formatFloat(cfg.HeightLimiter), Submit: func(v string) { limiter = v }},
-			form.Input{Text: "Factor", Placeholder: "1", Default: formatFloat(cfg.Factor), Submit: func(v string) { factor = v }},
+			form.Input{Text: "Height limiter (Y capas)", Placeholder: "1", Default: formatInt(cfg.HeightLimiter), Submit: func(v string) { limiter = v }},
 		},
 		Submit: func(closed bool, _ []any, tx *world.Tx) {
 			if closed {
@@ -154,7 +153,7 @@ func openCreatePresetForm(p *player.Player) {
 				return
 			}
 
-			created, err := buildConfigFromStrings(horizontal, vertical, cooldown, limiter, factor)
+			created, err := buildConfigFromStrings(horizontal, vertical, cooldown, limiter)
 			if err != nil {
 				openError(p, err)
 				return
@@ -177,7 +176,7 @@ func openEditCurrentPresetForm(p *player.Player) {
 	name := knockback.CurrentPreset()
 	cfg := knockback.GetKnockbackConfig()
 
-	var horizontal, vertical, cooldown, limiter, factor string
+	var horizontal, vertical, cooldown, limiter string
 	custom := &form.Custom{
 		Title: "Editar preset activo",
 		Elements: []form.Element{
@@ -185,15 +184,14 @@ func openEditCurrentPresetForm(p *player.Player) {
 			form.Input{Text: "Horizontal force", Placeholder: "0.4", Default: formatFloat(cfg.HorizontalForce), Submit: func(v string) { horizontal = v }},
 			form.Input{Text: "Vertical force", Placeholder: "0.4", Default: formatFloat(cfg.VerticalForce), Submit: func(v string) { vertical = v }},
 			form.Input{Text: "Attack cooldown (ms)", Placeholder: "100", Default: formatInt(cfg.AttackCooldown), Submit: func(v string) { cooldown = v }},
-			form.Input{Text: "Height limiter", Placeholder: "0.4", Default: formatFloat(cfg.HeightLimiter), Submit: func(v string) { limiter = v }},
-			form.Input{Text: "Factor", Placeholder: "1", Default: formatFloat(cfg.Factor), Submit: func(v string) { factor = v }},
+			form.Input{Text: "Height limiter (Y capas)", Placeholder: "1", Default: formatInt(cfg.HeightLimiter), Submit: func(v string) { limiter = v }},
 		},
 		Submit: func(closed bool, _ []any, tx *world.Tx) {
 			if closed {
 				openMainMenu(p)
 				return
 			}
-			updated, err := buildConfigFromStrings(horizontal, vertical, cooldown, limiter, factor)
+			updated, err := buildConfigFromStrings(horizontal, vertical, cooldown, limiter)
 			if err != nil {
 				openError(p, err)
 				return
@@ -330,7 +328,7 @@ func indexOf(values []string, target string) int {
 	return -1
 }
 
-func buildConfigFromStrings(horizontal, vertical, cooldown, limiter, factor string) (*config.KnockbackConfig, error) {
+func buildConfigFromStrings(horizontal, vertical, cooldown, limiter string) (*config.KnockbackConfig, error) {
 	h, err := parseNonNegativeFloat(horizontal, "horizontal force")
 	if err != nil {
 		return nil, err
@@ -343,21 +341,15 @@ func buildConfigFromStrings(horizontal, vertical, cooldown, limiter, factor stri
 	if err != nil {
 		return nil, err
 	}
-	l, err := parseNonNegativeFloat(limiter, "height limiter")
+	l, err := parseNonNegativeInt(limiter, "height limiter")
 	if err != nil {
 		return nil, err
 	}
-	f, err := parseNonNegativeFloat(factor, "factor")
-	if err != nil {
-		return nil, err
-	}
-
 	cfg := &config.KnockbackConfig{
 		HorizontalForce: h,
 		VerticalForce:   v,
 		AttackCooldown:  cooldownMS,
 		HeightLimiter:   l,
-		Factor:          f,
 	}
 	if err := cfg.Validate(); err != nil {
 		return nil, err
@@ -400,11 +392,10 @@ func renderConfig(cfg *config.KnockbackConfig) string {
 		return "config: <nil>"
 	}
 	return fmt.Sprintf(
-		"horizontal=%.3f vertical=%.3f cooldown=%dms height_limiter=%.3f factor=%.3f",
+		"horizontal=%.3f vertical=%.3f cooldown=%dms height_limiter=%d",
 		cfg.HorizontalForce,
 		cfg.VerticalForce,
 		cfg.AttackCooldown,
 		cfg.HeightLimiter,
-		cfg.Factor,
 	)
 }

@@ -6,8 +6,7 @@ type KnockbackConfig struct {
 	HorizontalForce float64 `json:"horizontal_force"`
 	VerticalForce   float64 `json:"vertical_force"`
 	AttackCooldown  int64   `json:"attack_cooldown"`
-	HeightLimiter   float64 `json:"height_limiter"`
-	Factor          float64 `json:"factor"`
+	HeightLimiter   int64   `json:"height_limiter"`
 }
 
 func DefaultKnockbackConfig() *KnockbackConfig {
@@ -15,8 +14,7 @@ func DefaultKnockbackConfig() *KnockbackConfig {
 		HorizontalForce: 0.4,
 		VerticalForce:   0.4,
 		AttackCooldown:  0,
-		HeightLimiter:   0.4,
-		Factor:          1,
+		HeightLimiter:   1,
 	}
 }
 
@@ -43,9 +41,6 @@ func (k *KnockbackConfig) Validate() error {
 	}
 	if k.HeightLimiter < 0 {
 		return fmt.Errorf("height_limiter cannot be negative")
-	}
-	if k.Factor < 0 {
-		return fmt.Errorf("factor cannot be negative")
 	}
 	return nil
 }

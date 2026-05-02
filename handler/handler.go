@@ -17,18 +17,28 @@ func NewKnockBackHandler() *KnockBackHandler {
 	return &KnockBackHandler{}
 }
 
-func (h *KnockBackHandler) HandleAttackEntity(_ *player.Context, _ world.Entity, force, height *float64, _ *bool) {
+func (h *KnockBackHandler) HandleAttackEntity(ctx *player.Context, target world.Entity, force, height *float64, _ *bool) {
 	cfg := knockback.GetKnockbackConfig()
 
 	if force != nil {
-		*force = cfg.HorizontalForce * cfg.Factor
+		*force = cfg.HorizontalForce
 	}
+
 	if height != nil {
-		vertical := cfg.VerticalForce * cfg.Factor
-		if cfg.HeightLimiter > 0 && vertical > cfg.HeightLimiter {
-			vertical = cfg.HeightLimiter
+		verticalForce := cfg.VerticalForce
+
+		if cfg.HeightLimiter > 0 {
+			dist := target.Position().Y() - ctx.Val().Position().Y()
+			maxLayers := float64(cfg.HeightLimiter)
+			if dist+verticalForce > maxLayers {
+				verticalForce = maxLayers - dist
+				if verticalForce < 0 {
+					verticalForce = 0
+				}
+			}
 		}
-		*height = vertical
+
+		*height = verticalForce
 	}
 }
 

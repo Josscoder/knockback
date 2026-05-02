@@ -36,8 +36,7 @@ cfg := &config.KnockbackConfig{
 	HorizontalForce: 0.35,
 	VerticalForce:   0.35,
 	AttackCooldown:  120,
-	HeightLimiter:   0.4,
-	Factor:          1.0,
+	HeightLimiter:   1,
 }
 
 if err := knockback.CreateOrUpdatePreset("ranked", cfg); err != nil {
@@ -56,8 +55,7 @@ if err := knockback.SelectPreset("ranked"); err != nil {
   "horizontal_force": 0.2,
   "vertical_force": 0.2,
   "attack_cooldown": 300,
-  "height_limiter": 0.3,
-  "factor": 1
+  "height_limiter": 1
 }
 ```
 
@@ -72,6 +70,7 @@ If no active preset exists, `default` is used.
 
 - All values must be `>= 0`.
 - `attack_cooldown` is in milliseconds.
+- `height_limiter` is an integer (Y layers).
 - Preset names only allow letters, numbers, `_`, and `-`.
 
 ## Run this project as a reference
