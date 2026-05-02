@@ -1,4 +1,4 @@
-module github.com/Josscoder/knockback
+module github.com/josscoder/knockback
 
 go 1.25.0
 
