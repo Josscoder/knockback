@@ -1,0 +1,42 @@
+package main
+
+import (
+	"log/slog"
+
+	"knockback/command"
+	"knockback/handler"
+	"knockback/knockback"
+
+	"github.com/df-mc/dragonfly/server"
+	"github.com/df-mc/dragonfly/server/cmd"
+	"github.com/df-mc/dragonfly/server/player/chat"
+	"github.com/df-mc/dragonfly/server/world"
+)
+
+func main() {
+	slog.SetLogLoggerLevel(slog.LevelDebug)
+	chat.Global.Subscribe(chat.StdoutSubscriber{})
+
+	kbManager := knockback.NewManager(knockback.Settings{})
+	if err := kbManager.LoadKnockbackConfig(); err != nil {
+		panic(err)
+	}
+	cmd.Register(command.NewKnockbackCommand(kbManager))
+
+	srvConf := server.DefaultConfig()
+	srvConf.Players.SaveData = false
+
+	conf, err := srvConf.Config(slog.Default())
+	if err != nil {
+		panic(err)
+	}
+
+	srv := conf.New()
+	srv.CloseOnProgramEnd()
+
+	srv.Listen()
+	for p := range srv.Accept() {
+		p.Handle(handler.NewKnockBackHandler(kbManager))
+		p.SetGameMode(world.GameModeSurvival)
+	}
+}
