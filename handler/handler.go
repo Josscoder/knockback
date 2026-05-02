@@ -13,11 +13,11 @@ type KnockBackHandler struct {
 	player.NopHandler
 }
 
-func NewKnockBackHandler() *KnockBackHandler {
-	return &KnockBackHandler{}
+func NewKnockBackHandler() KnockBackHandler {
+	return KnockBackHandler{}
 }
 
-func (h *KnockBackHandler) HandleAttackEntity(ctx *player.Context, target world.Entity, force, height *float64, _ *bool) {
+func (KnockBackHandler) HandleAttackEntity(ctx *player.Context, target world.Entity, force, height *float64, _ *bool) {
 	cfg := knockback.GetKnockbackConfig()
 
 	if force != nil {
@@ -42,7 +42,7 @@ func (h *KnockBackHandler) HandleAttackEntity(ctx *player.Context, target world.
 	}
 }
 
-func (h *KnockBackHandler) HandleHurt(_ *player.Context, _ *float64, immune bool, attackImmunity *time.Duration, _ world.DamageSource) {
+func (KnockBackHandler) HandleHurt(_ *player.Context, _ *float64, immune bool, attackImmunity *time.Duration, _ world.DamageSource) {
 	if immune || attackImmunity == nil {
 		return
 	}
