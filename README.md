@@ -10,13 +10,13 @@ You can reuse the logic as a package in another Go/Dragonfly project using these
 - `github.com/josscoder/knockback/knockback` (disk-based preset manager)
 - `github.com/josscoder/knockback/handler` (handler that applies knockback and cooldown)
 
-### 1) Initialize the manager
+### 1) Initialize/load the package API
 
 ```go
-kbManager := knockback.NewManager(knockback.Settings{
+knockback.Configure(knockback.Settings{
 	KnockbackPresetsPath: "presets",
 })
-if err := kbManager.LoadKnockbackConfig(); err != nil {
+if err := knockback.LoadKnockbackConfig(); err != nil {
 	panic(err)
 }
 ```
@@ -25,7 +25,7 @@ if err := kbManager.LoadKnockbackConfig(); err != nil {
 
 ```go
 for p := range srv.Accept() {
-	p.Handle(handler.NewKnockBackHandler(kbManager))
+	p.Handle(handler.NewKnockBackHandler())
 }
 ```
 
@@ -40,11 +40,11 @@ cfg := &config.KnockbackConfig{
 	Factor:          1.0,
 }
 
-if err := kbManager.CreateOrUpdatePreset("ranked", cfg); err != nil {
+if err := knockback.CreateOrUpdatePreset("ranked", cfg); err != nil {
 	panic(err)
 }
 
-if err := kbManager.SelectPreset("ranked"); err != nil {
+if err := knockback.SelectPreset("ranked"); err != nil {
 	panic(err)
 }
 ```

@@ -17,11 +17,10 @@ func main() {
 	slog.SetLogLoggerLevel(slog.LevelDebug)
 	chat.Global.Subscribe(chat.StdoutSubscriber{})
 
-	kbManager := knockback.NewManager(knockback.Settings{})
-	if err := kbManager.LoadKnockbackConfig(); err != nil {
+	if err := knockback.LoadKnockbackConfig(); err != nil {
 		panic(err)
 	}
-	cmd.Register(command.NewKnockbackCommand(kbManager))
+	cmd.Register(command.NewKnockbackCommand())
 
 	srvConf := server.DefaultConfig()
 	srvConf.Players.SaveData = false
@@ -36,7 +35,7 @@ func main() {
 
 	srv.Listen()
 	for p := range srv.Accept() {
-		p.Handle(handler.NewKnockBackHandler(kbManager))
+		p.Handle(handler.NewKnockBackHandler())
 		p.SetGameMode(world.GameModeSurvival)
 	}
 }

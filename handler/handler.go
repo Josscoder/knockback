@@ -11,19 +11,14 @@ import (
 
 type KnockBackHandler struct {
 	player.NopHandler
-
-	Manager *knockback.Manager
 }
 
-func NewKnockBackHandler(manager *knockback.Manager) *KnockBackHandler {
-	return &KnockBackHandler{Manager: manager}
+func NewKnockBackHandler() *KnockBackHandler {
+	return &KnockBackHandler{}
 }
 
 func (h *KnockBackHandler) HandleAttackEntity(_ *player.Context, _ world.Entity, force, height *float64, _ *bool) {
-	if h.Manager == nil {
-		return
-	}
-	cfg := h.Manager.GetKnockbackConfig()
+	cfg := knockback.GetKnockbackConfig()
 
 	if force != nil {
 		*force = cfg.HorizontalForce * cfg.Factor
@@ -38,9 +33,9 @@ func (h *KnockBackHandler) HandleAttackEntity(_ *player.Context, _ world.Entity,
 }
 
 func (h *KnockBackHandler) HandleHurt(_ *player.Context, _ *float64, immune bool, attackImmunity *time.Duration, _ world.DamageSource) {
-	if immune || h.Manager == nil || attackImmunity == nil {
+	if immune || attackImmunity == nil {
 		return
 	}
-	cfg := h.Manager.GetKnockbackConfig()
+	cfg := knockback.GetKnockbackConfig()
 	*attackImmunity = time.Duration(cfg.AttackCooldown) * time.Millisecond
 }
