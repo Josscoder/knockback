@@ -21,6 +21,7 @@ require (
 	github.com/sandertv/go-raknet v1.15.1-0.20260112202637-beca0b10c217 // indirect
 	github.com/sandertv/gophertunnel v1.55.0 // indirect
 	github.com/segmentio/fasthash v1.0.3 // indirect
+	github.com/twistedasylummc/inline-forms v0.0.4 // indirect
 	golang.org/x/exp v0.0.0-20250103183323-7d7fa50e5329 // indirect
 	golang.org/x/mod v0.22.0 // indirect
 	golang.org/x/net v0.38.0 // indirect
