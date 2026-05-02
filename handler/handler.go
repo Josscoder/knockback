@@ -3,7 +3,7 @@ package handler
 import (
 	"time"
 
-	"knockback/knockback"
+	"github.com/josscoder/knockback/knockback"
 
 	"github.com/df-mc/dragonfly/server/player"
 	"github.com/df-mc/dragonfly/server/world"

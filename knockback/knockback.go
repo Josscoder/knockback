@@ -10,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	"knockback/config"
+	"github.com/josscoder/knockback/config"
 )
 
 const (

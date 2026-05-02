@@ -3,9 +3,9 @@ package main
 import (
 	"log/slog"
 
-	"knockback/command"
-	"knockback/handler"
-	"knockback/knockback"
+	"github.com/josscoder/knockback/command"
+	"github.com/josscoder/knockback/handler"
+	"github.com/josscoder/knockback/knockback"
 
 	"github.com/df-mc/dragonfly/server"
 	"github.com/df-mc/dragonfly/server/cmd"

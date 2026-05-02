@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"knockback/config"
-	"knockback/knockback"
+	"github.com/josscoder/knockback/config"
+	"github.com/josscoder/knockback/knockback"
 
 	"github.com/df-mc/dragonfly/server/cmd"
 	"github.com/df-mc/dragonfly/server/player"

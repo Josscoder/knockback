@@ -6,9 +6,9 @@ This project applies and manages knockback presets for Dragonfly-based servers.
 
 You can reuse the logic as a package in another Go/Dragonfly project using these packages:
 
-- `knockback/config` (config structure and validation)
-- `knockback/knockback` (disk-based preset manager)
-- `knockback/handler` (handler that applies knockback and cooldown)
+- `github.com/josscoder/knockback/config` (config structure and validation)
+- `github.com/josscoder/knockback/knockback` (disk-based preset manager)
+- `github.com/josscoder/knockback/handler` (handler that applies knockback and cooldown)
 
 ### 1) Initialize the manager
 
