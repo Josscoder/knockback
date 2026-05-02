@@ -18,7 +18,7 @@ import (
 func NewKnockbackCommand() cmd.Command {
 	return cmd.New(
 		"kb",
-		"Gestiona presets de knockback",
+		"Manage knockback presets",
 		[]string{"knockback"},
 		KnockbackCommand{},
 	)
@@ -26,12 +26,8 @@ func NewKnockbackCommand() cmd.Command {
 
 type KnockbackCommand struct{}
 
-func (k KnockbackCommand) Run(source cmd.Source, output *cmd.Output, _ *world.Tx) {
-	p, ok := source.(*player.Player)
-	if !ok {
-		output.Error("este comando solo puede usarse en juego")
-		return
-	}
+func (k KnockbackCommand) Run(source cmd.Source, _ *cmd.Output, _ *world.Tx) {
+	p := source.(*player.Player)
 	openMainMenu(p)
 }
 
@@ -40,21 +36,21 @@ func openMainMenu(p *player.Player) {
 
 	menu := &form.Menu{
 		Title:   "Knockback presets",
-		Content: text.Colourf("<aqua>Preset activo:</aqua> <green>%s</green>", current),
+		Content: text.Colourf("<aqua>Active preset:</aqua> <green>%s</green>", current),
 		Elements: []form.MenuElement{
-			form.Button{Text: text.Colourf("<green>Ver preset activo</green>"), Submit: func(tx *world.Tx) {
+			form.Button{Text: text.Colourf("<green>View active preset</green>"), Submit: func(tx *world.Tx) {
 				openCurrentPreset(p)
 			}},
-			form.Button{Text: text.Colourf("<yellow>Seleccionar preset</yellow>"), Submit: func(tx *world.Tx) {
+			form.Button{Text: text.Colourf("<yellow>Select preset</yellow>"), Submit: func(tx *world.Tx) {
 				openSelectPresetForm(p)
 			}},
-			form.Button{Text: text.Colourf("<green>Crear preset</green>"), Submit: func(tx *world.Tx) {
+			form.Button{Text: text.Colourf("<green>Create preset</green>"), Submit: func(tx *world.Tx) {
 				openCreatePresetForm(p)
 			}},
-			form.Button{Text: text.Colourf("<aqua>Editar preset activo</aqua>"), Submit: func(tx *world.Tx) {
+			form.Button{Text: text.Colourf("<aqua>Edit active preset</aqua>"), Submit: func(tx *world.Tx) {
 				openEditCurrentPresetForm(p)
 			}},
-			form.Button{Text: text.Colourf("<red>Eliminar preset</red>"), Submit: func(tx *world.Tx) {
+			form.Button{Text: text.Colourf("<red>Delete preset</red>"), Submit: func(tx *world.Tx) {
 				openDeletePresetForm(p)
 			}},
 		},
@@ -66,7 +62,7 @@ func openCurrentPreset(p *player.Player) {
 	cfg := knockback.GetKnockbackConfig()
 	openNotice(
 		p,
-		"Preset activo",
+		"Active preset",
 		text.Colourf("<green>%s</green>\n<grey>%s</grey>", knockback.CurrentPreset(), renderConfig(cfg)),
 	)
 }
@@ -86,9 +82,9 @@ func openSelectPresetForm(p *player.Player) {
 	selected := presets[defaultIndex]
 
 	custom := &form.Custom{
-		Title: "Seleccionar preset",
+		Title: "Select preset",
 		Elements: []form.Element{
-			form.Label{Text: "Selecciona el preset que quieres activar."},
+			form.Label{Text: "Select the preset you want to activate."},
 			form.Dropdown{
 				Text:         "Preset",
 				Options:      presets,
@@ -109,7 +105,7 @@ func openSelectPresetForm(p *player.Player) {
 			}
 			openNotice(
 				p,
-				"Preset seleccionado",
+				"Preset selected",
 				text.Colourf("<green>%s</green>\n<grey>%s</grey>", selected, renderConfig(knockback.GetKnockbackConfig())),
 			)
 		},
@@ -122,14 +118,14 @@ func openCreatePresetForm(p *player.Player) {
 
 	var name, horizontal, vertical, cooldown, limiter string
 	custom := &form.Custom{
-		Title: "Crear preset",
+		Title: "Create preset",
 		Elements: []form.Element{
-			form.Label{Text: "Crea un nuevo preset de knockback."},
-			form.Input{Text: "Nombre del preset", Placeholder: "combo", Default: "", Submit: func(v string) { name = v }},
+			form.Label{Text: "Create a new knockback preset."},
+			form.Input{Text: "Preset name", Placeholder: "combo", Default: "", Submit: func(v string) { name = v }},
 			form.Input{Text: "Horizontal force", Placeholder: "0.4", Default: formatFloat(cfg.HorizontalForce), Submit: func(v string) { horizontal = v }},
 			form.Input{Text: "Vertical force", Placeholder: "0.4", Default: formatFloat(cfg.VerticalForce), Submit: func(v string) { vertical = v }},
 			form.Input{Text: "Attack cooldown (ms)", Placeholder: "100", Default: formatInt(cfg.AttackCooldown), Submit: func(v string) { cooldown = v }},
-			form.Input{Text: "Height limiter (Y capas)", Placeholder: "1", Default: formatInt(cfg.HeightLimiter), Submit: func(v string) { limiter = v }},
+			form.Input{Text: "Height limiter (Y layers)", Placeholder: "1", Default: formatInt(cfg.HeightLimiter), Submit: func(v string) { limiter = v }},
 		},
 		Submit: func(closed bool, _ []any, tx *world.Tx) {
 			if closed {
@@ -139,7 +135,7 @@ func openCreatePresetForm(p *player.Player) {
 
 			name = strings.TrimSpace(name)
 			if name == "" {
-				openError(p, fmt.Errorf("el nombre del preset no puede estar vacío"))
+				openError(p, fmt.Errorf("preset name cannot be empty"))
 				return
 			}
 
@@ -149,7 +145,7 @@ func openCreatePresetForm(p *player.Player) {
 				return
 			}
 			if exists {
-				openError(p, fmt.Errorf("el preset %q ya existe", name))
+				openError(p, fmt.Errorf("preset %q already exists", name))
 				return
 			}
 
@@ -164,7 +160,7 @@ func openCreatePresetForm(p *player.Player) {
 			}
 			openNotice(
 				p,
-				"Preset creado",
+				"Preset created",
 				text.Colourf("<green>%s</green>\n<grey>%s</grey>", name, renderConfig(created)),
 			)
 		},
@@ -178,13 +174,13 @@ func openEditCurrentPresetForm(p *player.Player) {
 
 	var horizontal, vertical, cooldown, limiter string
 	custom := &form.Custom{
-		Title: "Editar preset activo",
+		Title: "Edit active preset",
 		Elements: []form.Element{
-			form.Label{Text: text.Colourf("Editando preset: <green>%s</green>", name)},
+			form.Label{Text: text.Colourf("Editing preset: <green>%s</green>", name)},
 			form.Input{Text: "Horizontal force", Placeholder: "0.4", Default: formatFloat(cfg.HorizontalForce), Submit: func(v string) { horizontal = v }},
 			form.Input{Text: "Vertical force", Placeholder: "0.4", Default: formatFloat(cfg.VerticalForce), Submit: func(v string) { vertical = v }},
 			form.Input{Text: "Attack cooldown (ms)", Placeholder: "100", Default: formatInt(cfg.AttackCooldown), Submit: func(v string) { cooldown = v }},
-			form.Input{Text: "Height limiter (Y capas)", Placeholder: "1", Default: formatInt(cfg.HeightLimiter), Submit: func(v string) { limiter = v }},
+			form.Input{Text: "Height limiter (Y layers)", Placeholder: "1", Default: formatInt(cfg.HeightLimiter), Submit: func(v string) { limiter = v }},
 		},
 		Submit: func(closed bool, _ []any, tx *world.Tx) {
 			if closed {
@@ -202,7 +198,7 @@ func openEditCurrentPresetForm(p *player.Player) {
 			}
 			openNotice(
 				p,
-				"Preset actualizado",
+				"Preset updated",
 				text.Colourf("<green>%s</green>\n<grey>%s</grey>", name, renderConfig(updated)),
 			)
 		},
@@ -224,15 +220,15 @@ func openDeletePresetForm(p *player.Player) {
 		}
 	}
 	if len(deletable) == 0 {
-		openNotice(p, "Eliminar preset", "<yellow>No hay presets eliminables.</yellow>")
+		openNotice(p, "Delete preset", "<yellow>There are no deletable presets.</yellow>")
 		return
 	}
 
 	selected := deletable[0]
 	custom := &form.Custom{
-		Title: "Eliminar preset",
+		Title: "Delete preset",
 		Elements: []form.Element{
-			form.Label{Text: "Selecciona el preset que quieres eliminar."},
+			form.Label{Text: "Select the preset you want to delete."},
 			form.Dropdown{
 				Text:         "Preset",
 				Options:      deletable,
@@ -255,10 +251,10 @@ func openDeletePresetForm(p *player.Player) {
 
 func openDeleteConfirmModal(p *player.Player, name string) {
 	modal := &form.Modal{
-		Title:   "Confirmar eliminación",
-		Content: text.Colourf("¿Seguro que quieres eliminar <red>%s</red>?", name),
+		Title:   "Confirm deletion",
+		Content: text.Colourf("Are you sure you want to delete <red>%s</red>?", name),
 		Button1: form.Button{
-			Text: "Eliminar",
+			Text: "Delete",
 			Submit: func(tx *world.Tx) {
 				if err := knockback.DeletePreset(name); err != nil {
 					openError(p, err)
@@ -266,13 +262,13 @@ func openDeleteConfirmModal(p *player.Player, name string) {
 				}
 				openNotice(
 					p,
-					"Preset eliminado",
-					text.Colourf("<red>%s</red>\n<aqua>Activo actual:</aqua> <green>%s</green>", name, knockback.CurrentPreset()),
+					"Preset deleted",
+					text.Colourf("<red>%s</red>\n<aqua>Current active:</aqua> <green>%s</green>", name, knockback.CurrentPreset()),
 				)
 			},
 		},
 		Button2: form.Button{
-			Text: "Cancelar",
+			Text: "Cancel",
 			Submit: func(tx *world.Tx) {
 				openMainMenu(p)
 			},
@@ -291,7 +287,7 @@ func openNotice(p *player.Player, title, content string) {
 		Title:   title,
 		Content: content,
 		Elements: []form.MenuElement{
-			form.Button{Text: "Volver", Submit: func(tx *world.Tx) { openMainMenu(p) }},
+			form.Button{Text: "Back", Submit: func(tx *world.Tx) { openMainMenu(p) }},
 		},
 	}
 	p.SendForm(menu)
@@ -360,10 +356,10 @@ func buildConfigFromStrings(horizontal, vertical, cooldown, limiter string) (*co
 func parseNonNegativeFloat(raw string, field string) (float64, error) {
 	value, err := strconv.ParseFloat(strings.TrimSpace(raw), 64)
 	if err != nil {
-		return 0, fmt.Errorf("%s debe ser un número válido", field)
+		return 0, fmt.Errorf("%s must be a valid number", field)
 	}
 	if value < 0 {
-		return 0, fmt.Errorf("%s no puede ser negativo", field)
+		return 0, fmt.Errorf("%s cannot be negative", field)
 	}
 	return value, nil
 }
@@ -379,10 +375,10 @@ func formatInt(v int64) string {
 func parseNonNegativeInt(raw string, field string) (int64, error) {
 	value, err := strconv.ParseInt(strings.TrimSpace(raw), 10, 64)
 	if err != nil {
-		return 0, fmt.Errorf("%s debe ser un número entero válido", field)
+		return 0, fmt.Errorf("%s must be a valid integer", field)
 	}
 	if value < 0 {
-		return 0, fmt.Errorf("%s no puede ser negativo", field)
+		return 0, fmt.Errorf("%s cannot be negative", field)
 	}
 	return value, nil
 }
