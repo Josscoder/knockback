@@ -45,19 +45,6 @@ func (m *Manager) GetKnockbackConfig() *config.KnockbackConfig {
 	return m.kbConfig.Clone()
 }
 
-func (m *Manager) SetKnockbackConfig(cfg *config.KnockbackConfig) error {
-	if cfg == nil {
-		return fmt.Errorf("knockback config cannot be nil")
-	}
-	if err := cfg.Validate(); err != nil {
-		return err
-	}
-	m.mu.Lock()
-	m.kbConfig = cfg.Clone()
-	m.mu.Unlock()
-	return nil
-}
-
 func (m *Manager) CurrentPreset() string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -113,18 +100,6 @@ func (m *Manager) PresetExists(name string) (bool, error) {
 		return false, nil
 	}
 	return false, err
-}
-
-func (m *Manager) GetPresetConfig(name string) (*config.KnockbackConfig, error) {
-	normalized, err := normalizePresetName(name)
-	if err != nil {
-		return nil, err
-	}
-	presetPath, err := m.presetPath(normalized)
-	if err != nil {
-		return nil, err
-	}
-	return m.readConfigFile(presetPath)
 }
 
 func (m *Manager) CreateOrUpdatePreset(name string, cfg *config.KnockbackConfig) error {
@@ -250,37 +225,6 @@ func (m *Manager) LoadKnockbackConfig() error {
 	m.activePreset = active
 	m.mu.Unlock()
 
-	if err := m.writeActivePreset(active); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *Manager) SaveKnockbackConfig() error {
-	m.mu.RLock()
-	cfg := m.kbConfig.Clone()
-	active := m.activePreset
-	m.mu.RUnlock()
-
-	if cfg == nil {
-		return fmt.Errorf("knockback config cannot be nil")
-	}
-	if err := cfg.Validate(); err != nil {
-		return err
-	}
-	if active == "" {
-		active = defaultPresetName
-	}
-	if err := m.ensurePresetDir(); err != nil {
-		return err
-	}
-	activePath, err := m.presetPath(active)
-	if err != nil {
-		return err
-	}
-	if err := m.writeConfigFile(activePath, cfg); err != nil {
-		return err
-	}
 	if err := m.writeActivePreset(active); err != nil {
 		return err
 	}

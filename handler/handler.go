@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"sync"
 	"time"
 
 	"knockback/knockback"
@@ -14,9 +13,6 @@ type KnockBackHandler struct {
 	player.NopHandler
 
 	Manager *knockback.Manager
-
-	mu         sync.Mutex
-	lastAttack time.Time
 }
 
 func NewKnockBackHandler(manager *knockback.Manager) *KnockBackHandler {
@@ -29,28 +25,22 @@ func (h *KnockBackHandler) HandleAttackEntity(_ *player.Context, _ world.Entity,
 	}
 	cfg := h.Manager.GetKnockbackConfig()
 
-	multiplier := cfg.Factor
-	if cfg.AttackCooldown > 0 {
-		now := time.Now()
-		h.mu.Lock()
-		if !h.lastAttack.IsZero() {
-			elapsed := now.Sub(h.lastAttack).Seconds()
-			if elapsed < cfg.AttackCooldown {
-				multiplier *= elapsed / cfg.AttackCooldown
-			}
-		}
-		h.lastAttack = now
-		h.mu.Unlock()
-	}
-
 	if force != nil {
-		*force = cfg.HorizontalForce * multiplier
+		*force = cfg.HorizontalForce * cfg.Factor
 	}
 	if height != nil {
-		vertical := cfg.VerticalForce * multiplier
+		vertical := cfg.VerticalForce * cfg.Factor
 		if cfg.HeightLimiter > 0 && vertical > cfg.HeightLimiter {
 			vertical = cfg.HeightLimiter
 		}
 		*height = vertical
 	}
+}
+
+func (h *KnockBackHandler) HandleHurt(_ *player.Context, _ *float64, immune bool, attackImmunity *time.Duration, _ world.DamageSource) {
+	if immune || h.Manager == nil || attackImmunity == nil {
+		return
+	}
+	cfg := h.Manager.GetKnockbackConfig()
+	*attackImmunity = time.Duration(cfg.AttackCooldown) * time.Millisecond
 }
