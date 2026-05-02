@@ -1,0 +1,67 @@
+name: Build binaries
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build binary
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          if ("${{ runner.os }}" -eq "Windows") {
+            go build -trimpath -o dist/knockback-windows-amd64.exe .
+          } else {
+            go build -trimpath -o dist/knockback-linux-amd64 .
+          }
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: knockback-${{ runner.os }}-amd64
+          path: dist/*
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: knockback-*-amd64
+          merge-multiple: true
+          path: dist
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: main-${{ github.run_number }}-${{ github.sha }}
+          name: Main build ${{ github.run_number }}
+          generate_release_notes: true
+          files: |
+            dist/knockback-linux-amd64
+            dist/knockback-windows-amd64.exe
