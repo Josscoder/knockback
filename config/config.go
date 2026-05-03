@@ -5,7 +5,7 @@ import "fmt"
 type KnockbackConfig struct {
 	HorizontalForce float64 `json:"horizontal_force"`
 	VerticalForce   float64 `json:"vertical_force"`
-	AttackCooldown  int64   `json:"attack_cooldown"`
+	AttackCooldown  float64 `json:"attack_cooldown"`
 	HeightLimiter   int64   `json:"height_limiter"`
 }
 

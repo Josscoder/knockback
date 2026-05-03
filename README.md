@@ -35,7 +35,7 @@ for p := range srv.Accept() {
 cfg := &config.KnockbackConfig{
 	HorizontalForce: 0.35,
 	VerticalForce:   0.35,
-	AttackCooldown:  120,
+	AttackCooldown:  0.12,
 	HeightLimiter:   1,
 }
 
@@ -54,7 +54,7 @@ if err := knockback.SelectPreset("ranked"); err != nil {
 {
   "horizontal_force": 0.2,
   "vertical_force": 0.2,
-  "attack_cooldown": 300,
+  "attack_cooldown": 0.3,
   "height_limiter": 1
 }
 ```
@@ -69,7 +69,7 @@ If no active preset exists, `default` is used.
 ## Values and rules
 
 - All values must be `>= 0`.
-- `attack_cooldown` is in milliseconds.
+- `attack_cooldown` is in seconds (supports decimals, e.g. `1.5`).
 - `height_limiter` is an integer (Y layers).
 - Preset names only allow letters, numbers, `_`, and `-`.
 
