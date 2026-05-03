@@ -47,5 +47,5 @@ func (KnockBackHandler) HandleHurt(_ *player.Context, _ *float64, immune bool, a
 		return
 	}
 	cfg := knockback.GetKnockbackConfig()
-	*attackImmunity = time.Duration(cfg.AttackCooldown * float64(time.Second))
+	*attackImmunity = time.Duration(cfg.AttackCooldown * float64(time.Second) / 20)
 }
