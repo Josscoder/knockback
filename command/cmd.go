@@ -220,7 +220,7 @@ func openDeletePresetForm(p *player.Player) {
 		}
 	}
 	if len(deletable) == 0 {
-		openNotice(p, "Delete preset", "<yellow>There are no deletable presets.</yellow>")
+		openNotice(p, "Delete preset", text.Colourf("<yellow>There are no deletable presets.</yellow>"))
 		return
 	}
 
